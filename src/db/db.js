@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 dotenv.config();
-const DB_CONNECTION = `mongodb+srv://anhnq17062004:qapeo176@web83ls4.dcjca.mongodb.net/FoodDelivery?retryWrites=true&w=majority&appName=web83ls4`;
+const DB_CONNECTION = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@web83ls4.dcjca.mongodb.net/FoodDelivery?retryWrites=true&w=majority&appName=web83ls4`;
 
 const connectDatabase = async () => {
   try {
