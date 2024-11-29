@@ -144,5 +144,79 @@ const logout = async (req, res) => {
     message: "Logout successfully",
   });
 };
-const userController = { register, login, logout, getRefToken };
+const changePassword = async (req, res) => {
+  const { userId, oldPass, newPass } = req.body;
+  try {
+    if (!userId || !oldPass || !newPass) {
+      return res.status(404).json({
+        message: "Thieu thong tin",
+      });
+    }
+    const _user = await UserModel.findById(userId);
+    if (!_user)
+      return res.status(404).json({
+        message: "Khong tim thay nguoi dung",
+      });
+    const isMatch = await bcrypt.compare(oldPass, _user.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: "Mat khau cu khong chinh xac" });
+    }
+    // Ma hoa mk moi
+    const hashedPassword = await bcrypt.hash(newPass, 10);
+    _user.password = hashedPassword;
+
+    await _user.save();
+    return res.status(200).json({ message: "Đổi mật khẩu thành công" });
+  } catch (error) {
+    res.status(500).json({
+      message: "Loi server" + error.message,
+    });
+  }
+};
+
+const changeInfo = async (req, res) => {
+  try {
+    const { userId, newName, newAvatar } = req.body;
+    if (!userId)
+      return res.status(404).json({
+        message: "Thieu thong tin",
+      });
+    const _user = await UserModel.findById(userId);
+    if (!_user)
+      return res.status(404).json({ message: "Khong tim thay nguoi dung" });
+    if (newName && typeof newName === "string" && newName.trim().length > 0) {
+      _user.userName = newName.trim();
+    }
+    if (
+      newAvatar &&
+      typeof newAvatar === "string" &&
+      newAvatar.trim().length > 0
+    ) {
+      _user.avatar = newAvatar.trim();
+    }
+
+    await _user.save();
+
+    return res.status(200).json({
+      message: "Thay doi thong tin nguoi dung thanh cong",
+      updatedUser: {
+        id: _user._id,
+        userName: _user.userName,
+        avatar: _user.avatar,
+      },
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Loi server " + error.message,
+    });
+  }
+};
+const userController = {
+  register,
+  login,
+  logout,
+  getRefToken,
+  changePassword,
+  changeInfo,
+};
 export default userController;
