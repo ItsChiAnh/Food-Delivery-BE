@@ -7,8 +7,8 @@ dotenv.config();
 const saltRounds = 10;
 
 const register = async (req, res) => {
-  const { userName, email, password } = req.body;
-  if (!userName || !email || !age || !avatar || !password) {
+  const { userName, email, password, avatar, role } = req.body;
+  if (!userName || !email || !avatar || !password) {
     return res.status(404).json({
       message: "Thieu thong tin",
     });
@@ -29,7 +29,6 @@ const register = async (req, res) => {
     const newUser = {
       userName,
       email,
-      age,
       avatar,
       password: hashedPassword,
       role: userRole,
