@@ -49,20 +49,24 @@ const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const user = await UserModel.findOne({ email: email });
-    if (!user) {
-      return res.status(400).json({
-        error: "Invalid credentials",
-      });
+    // Kiểm tra thông tin đầu vào
+    if (!email || !password) {
+      return res.status(400).json({ error: "Email và mật khẩu là bắt buộc" });
     }
 
+    // Tìm người dùng qua email
+    const user = await UserModel.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ error: "Thong tin không đúng" });
+    }
+
+    // So sánh mật khẩu
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      return res.status(400).json({
-        error: "Invalid credentials",
-      });
+      return res.status(400).json({ error: "Thong tin không đúng" });
     }
 
+    // Tạo payload cho JWT
     const payload = {
       id: user._id,
       email: user.email,
@@ -70,32 +74,41 @@ const login = async (req, res) => {
       role: user.role,
     };
 
-    const token = jwt.sign(payload, process.env.SECRET_KEY, {
-      expiresIn: "1h",
+    // Tạo Access Token
+    const accessToken = jwt.sign(payload, process.env.SECRET_KEY, {
+      expiresIn: "1h", // Thời gian sống Access Token
       algorithm: "HS256",
     });
 
+    // Tạo Refresh Token
     const refreshToken = jwt.sign(payload, process.env.REFRESH_TOKEN, {
-      expiresIn: "1d",
+      expiresIn: "1d", // Thời gian sống Refresh Token
       algorithm: "HS256",
     });
 
+    // Lưu Refresh Token (có thể hash trước khi lưu)
+    const hashedRefreshToken = bcrypt.hashSync(refreshToken, 10);
     await rfTokenModel.create({
-      token: refreshToken,
+      token: hashedRefreshToken,
       userId: user._id,
     });
 
+    // Phản hồi đăng nhập thành công
     res.status(200).json({
-      message: "Login successfully",
+      message: "Đăng nhập thành công",
       userinfo: payload,
-      access_token: token,
-      refresh_token: refreshToken,
+      tokens: {
+        access_token: accessToken,
+        refresh_token: refreshToken,
+      },
+      token_expiry: {
+        access_token_expiry: "1h",
+        refresh_token_expiry: "1d",
+      },
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      error: "Server error",
-    });
+    console.error("Lỗi server:", error);
+    res.status(500).json({ error: "Lỗi server" + error.message });
   }
 };
 
