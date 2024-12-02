@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import router from "./src/routes/index.js";
 import connectDatabase from "./src/db/db.js";
+const PORT = process.env.PORT || 4000;
 dotenv.config();
 const app = express();
 connectDatabase();
@@ -17,6 +18,6 @@ app.get("/", (req, res) => {
     message: "ok",
   });
 });
-app.listen(process.env.PORT, () => {
+app.listen(PORT, () => {
   console.log(`server is running on http://localhost:${process.env.PORT}`);
 });
