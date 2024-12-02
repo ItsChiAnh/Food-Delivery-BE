@@ -13,11 +13,6 @@ app.use(express.json());
 
 app.use("/api", router);
 
-app.get("/", (req, res) => {
-  res.status(200).json({
-    message: "ok",
-  });
-});
-app.listen(PORT, () => {
-  console.log(`server is running on http://localhost:${process.env.PORT}`);
-});
+app.get("/", (req, res) => res.send("API Working properly"));
+
+app.listen(PORT, () => console.log(`Server running on port: ${PORT}`));
