@@ -1,6 +1,8 @@
 import express from "express";
 import {
   addFood,
+  editFood,
+  findFoodByID,
   listFood,
   removeFood,
 } from "../controllers/food.controllers.js";
@@ -13,5 +15,9 @@ foodRouter.post("/add", upload.single("image"), addFood);
 foodRouter.get("/list", listFood);
 
 foodRouter.post("/remove", removeFood);
+
+foodRouter.put("/edit/:id", editFood);
+
+foodRouter.post("/findid", findFoodByID);
 
 export default foodRouter;
