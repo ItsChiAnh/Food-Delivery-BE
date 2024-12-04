@@ -1,4 +1,4 @@
-import foodModel from "../models/foodModels.js";
+import foodModel from "../models/food.models.js";
 import fs from "fs";
 
 const addFood = async (req, res) => {
@@ -30,7 +30,9 @@ const listFood = async (req, res) => {
 
 const removeFood = async (req, res) => {
   try {
-    const food = await foodModel.findById(req.body.id);
+    const foodId = req.body.id;
+    const food = await foodModel.findById(foodId);
+    console.log(foodId);
     fs.unlink(`uploads/${food.image}`, () => {});
 
     await foodModel.findByIdAndDelete(req.body.id);
@@ -40,4 +42,50 @@ const removeFood = async (req, res) => {
   }
 };
 
-export { addFood, listFood, removeFood };
+const findFoodByID = async (req, res) => {
+  try {
+    const foodId = req.body.id;
+    const food = await foodModel.findById(foodId);
+    console.log(foodId);
+    if (!food) {
+      return res.status(404).json({ message: "Food not found" });
+    }
+    return res.json(food); // Return the found food object
+  } catch (error) {
+    console.error("Error finding food:", error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+const editFood = async (req, res) => {
+  try {
+    const foodId = req.params.id || req.body.id; // Check for ID in both params and body (adjust based on your API design)
+    const food = await foodModel.findById(foodId);
+    if (!food) {
+      return res.status(404).json({ message: "Food not found!" });
+    }
+
+    // Update food properties (handle optional data)
+
+    food.name = req.body.name || food.name;
+    food.description = req.body.description || food.description;
+    food.price = req.body.price || food.price;
+    food.category = req.body.category || food.category;
+
+    // Update image if a new one is uploaded
+    if (req.file) {
+      food.image = `${req.file.filename}`;
+
+      // Implement logic to delete the old image file (if applicable)
+    }
+
+    // Save the updated food document
+    await food.save();
+    return res.status(200).json({ success: true, message: "Food updated!" });
+  } catch (error) {
+    console.error("Error updating food:", error);
+    return res.status(400).json({ message: "Error updating food!" });
+  }
+};
+
+export { addFood, listFood, removeFood, editFood, findFoodByID };
