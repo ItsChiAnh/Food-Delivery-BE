@@ -161,35 +161,6 @@ const logout = async (req, res) => {
     message: "Logout successfully",
   });
 };
-// const changePassword = async (req, res) => {
-//   const { userId, oldPass, newPass } = req.body;
-//   try {
-//     if (!userId || !oldPass || !newPass) {
-//       return res.status(404).json({
-//         message: "Thieu thong tin",
-//       });
-//     }
-//     const _user = await UserModel.findById(userId);
-//     if (!_user)
-//       return res.status(404).json({
-//         message: "Khong tim thay nguoi dung",
-//       });
-//     const isMatch = await bcrypt.compare(oldPass, _user.password);
-//     if (!isMatch) {
-//       return res.status(401).json({ message: "Mat khau cu khong chinh xac" });
-//     }
-//     // Ma hoa mk moi
-//     const hashedPassword = await bcrypt.hash(newPass, 10);
-//     _user.password = hashedPassword;
-
-//     await _user.save();
-//     return res.status(200).json({ message: "Đổi mật khẩu thành công" });
-//   } catch (error) {
-//     res.status(500).json({
-//       message: "Loi server" + error.message,
-//     });
-//   }
-// };
 
 const sendOtp = async (req, res) => {
   const { email } = req.body;
