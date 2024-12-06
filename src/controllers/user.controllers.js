@@ -1,8 +1,12 @@
-import UserModel from "../models/user.model.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import dotenv from "dotenv";
+import crypto from "crypto";
+import nodemailer from "nodemailer";
+
 import rfTokenModel from "../models/refreshtoken.model.js";
+import UserModel from "../models/user.model.js";
+
 dotenv.config();
 const saltRounds = 10;
 
@@ -17,7 +21,6 @@ const register = async (req, res) => {
 
   //kiem tra email ton tai
   const checkExistingUser = await UserModel.findOne({ email: email });
-  console.log(password);
   if (checkExistingUser) {
     return res.status(409).json({
       Message: "Email already exists",
@@ -32,6 +35,8 @@ const register = async (req, res) => {
       avatar,
       password: hashedPassword,
       role: userRole,
+      otp: "",
+      otpExpires: "",
     };
     const insertNewUser = await UserModel.create(newUser);
     if (!insertNewUser) {
@@ -156,33 +161,112 @@ const logout = async (req, res) => {
     message: "Logout successfully",
   });
 };
-const changePassword = async (req, res) => {
-  const { userId, oldPass, newPass } = req.body;
+// const changePassword = async (req, res) => {
+//   const { userId, oldPass, newPass } = req.body;
+//   try {
+//     if (!userId || !oldPass || !newPass) {
+//       return res.status(404).json({
+//         message: "Thieu thong tin",
+//       });
+//     }
+//     const _user = await UserModel.findById(userId);
+//     if (!_user)
+//       return res.status(404).json({
+//         message: "Khong tim thay nguoi dung",
+//       });
+//     const isMatch = await bcrypt.compare(oldPass, _user.password);
+//     if (!isMatch) {
+//       return res.status(401).json({ message: "Mat khau cu khong chinh xac" });
+//     }
+//     // Ma hoa mk moi
+//     const hashedPassword = await bcrypt.hash(newPass, 10);
+//     _user.password = hashedPassword;
+
+//     await _user.save();
+//     return res.status(200).json({ message: "Đổi mật khẩu thành công" });
+//   } catch (error) {
+//     res.status(500).json({
+//       message: "Loi server" + error.message,
+//     });
+//   }
+// };
+
+const sendOtp = async (req, res) => {
+  const { email } = req.body;
   try {
-    if (!userId || !oldPass || !newPass) {
-      return res.status(404).json({
-        message: "Thieu thong tin",
-      });
+    if (!email) {
+      return res.status(400).json({ message: "Thiếu email" });
     }
-    const _user = await UserModel.findById(userId);
-    if (!_user)
-      return res.status(404).json({
-        message: "Khong tim thay nguoi dung",
-      });
-    const isMatch = await bcrypt.compare(oldPass, _user.password);
-    if (!isMatch) {
-      return res.status(401).json({ message: "Mat khau cu khong chinh xac" });
+
+    const _user = await UserModel.findOne({ email });
+    if (!_user) {
+      return res.status(404).json({ message: "Không tìm thấy người dùng" });
     }
-    // Ma hoa mk moi
+
+    // Tạo OTP ngẫu nhiên (6 chữ số)
+    const otp = crypto.randomInt(100000, 999999).toString();
+
+    // Lưu OTP và thời gian hết hạn
+    _user.otp = otp;
+    _user.otpExpires = Date.now() + 5 * 60 * 1000; // 5 phút
+    await _user.save();
+
+    // Cấu hình gửi email
+    const transporter = nodemailer.createTransport({
+      service: "Gmail", // hoặc SMTP khác
+      auth: {
+        user: process.env.EMAIL_USERNAME, // email của bạn
+        pass: process.env.EMAIL_PASSWORD, // mật khẩu ứng dụng
+      },
+    });
+
+    // Nội dung email
+    const mailOptions = {
+      from: process.env.EMAIL_USERNAME,
+      to: email,
+      subject: "Mã OTP đổi mật khẩu",
+      text: `Mã OTP của bạn là: ${otp}. Mã này sẽ hết hạn sau 5 phút.`,
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    res.status(200).json({ message: "Gửi OTP thành công" });
+  } catch (error) {
+    res.status(500).json({ message: "Lỗi server: " + error.message });
+  }
+};
+
+const changePasswordWithOtp = async (req, res) => {
+  const { email, otp, newPass } = req.body;
+  try {
+    if (!email || !otp || !newPass) {
+      return res.status(400).json({ message: "Thiếu thông tin" });
+    }
+
+    const _user = await UserModel.findOne({ email });
+    if (!_user) {
+      return res.status(404).json({ message: "Không tìm thấy người dùng" });
+    }
+
+    // Kiểm tra OTP và thời gian hết hạn
+    if (_user.otp !== otp || _user.otpExpires < Date.now()) {
+      return res
+        .status(401)
+        .json({ message: "OTP không hợp lệ hoặc đã hết hạn" });
+    }
+
+    // Mã hóa mật khẩu mới
     const hashedPassword = await bcrypt.hash(newPass, 10);
     _user.password = hashedPassword;
 
+    // Xóa OTP sau khi sử dụng
+    _user.otp = null;
+    _user.otpExpires = null;
+
     await _user.save();
-    return res.status(200).json({ message: "Đổi mật khẩu thành công" });
+    res.status(200).json({ message: "Đổi mật khẩu thành công" });
   } catch (error) {
-    res.status(500).json({
-      message: "Loi server" + error.message,
-    });
+    res.status(500).json({ message: "Lỗi server: " + error.message });
   }
 };
 
@@ -228,7 +312,8 @@ const userController = {
   login,
   logout,
   getRefToken,
-  changePassword,
+  sendOtp,
+  changePasswordWithOtp,
   changeInfo,
 };
 export default userController;

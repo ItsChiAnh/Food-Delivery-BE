@@ -5,6 +5,7 @@ userRouter.post("/register", userController.register);
 userRouter.post("/login", userController.login);
 userRouter.post("/token", userController.getRefToken);
 userRouter.post("/logout", userController.logout);
-userRouter.put("/change-password", userController.changePassword);
+userRouter.post("/send-otp", userController.sendOtp);
+userRouter.put("/change-password", userController.changePasswordWithOtp);
 userRouter.put("/change-info", userController.changeInfo);
 export default userRouter;
