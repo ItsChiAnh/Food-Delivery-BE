@@ -4,12 +4,7 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
-<<<<<<< HEAD
     "server": "node --watch server.js"
-=======
-    "dev": "node --watch server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
->>>>>>> 2588f4d3a220633cdda447c7cc32eb411acb08d3
   },
   "author": "",
   "license": "ISC",
@@ -24,6 +19,7 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.8.3",
     "multer": "^1.4.5-lts.1",
+    "nodemailer": "^6.9.16",
     "nodemon": "^3.1.7",
     "stripe": "^17.4.0",
     "validator": "^13.12.0"
