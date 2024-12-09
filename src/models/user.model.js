@@ -21,6 +21,10 @@ const userSchema = new mongoose.Schema(
     role: {
       type: String,
     },
+    cartData: {
+      type: Object,
+      default: {},
+    },
     otp: { type: String, default: null },
     otpExpires: { type: Date, default: null },
   },
