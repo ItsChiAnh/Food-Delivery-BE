@@ -14,7 +14,7 @@ const register = async (req, res) => {
   const { userName, email, password, avatar, role } = req.body;
   if (!userName || !email || !avatar || !password) {
     return res.status(404).json({
-      message: "Thieu thong tin",
+      message: "Missing credentials",
     });
   }
   let userRole = role && role === "admin" ? "admin" : "user";
@@ -56,19 +56,19 @@ const login = async (req, res) => {
 
     // Kiểm tra thông tin đầu vào
     if (!email || !password) {
-      return res.status(400).json({ error: "Email và mật khẩu là bắt buộc" });
+      return res.status(400).json({ error: "Missing credentials" });
     }
 
     // Tìm người dùng qua email
     const user = await UserModel.findOne({ email });
     if (!user) {
-      return res.status(400).json({ error: "Thong tin không đúng" });
+      return res.status(400).json({ error: "Invalid credentials" });
     }
 
     // So sánh mật khẩu
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      return res.status(400).json({ error: "Thong tin không đúng" });
+      return res.status(400).json({ error: "Invalid credentials" });
     }
 
     // Tạo payload cho JWT
@@ -100,7 +100,7 @@ const login = async (req, res) => {
 
     // Phản hồi đăng nhập thành công
     res.status(200).json({
-      message: "Đăng nhập thành công",
+      message: "Login successfully",
       userinfo: payload,
       tokens: {
         access_token: accessToken,
@@ -112,8 +112,8 @@ const login = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Lỗi server:", error);
-    res.status(500).json({ error: "Lỗi server" + error.message });
+    console.error(" server error:", error);
+    res.status(500).json({ error: " server error" + error.message });
   }
 };
 
@@ -166,12 +166,12 @@ const sendOtp = async (req, res) => {
   const { email } = req.body;
   try {
     if (!email) {
-      return res.status(400).json({ message: "Thiếu email" });
+      return res.status(400).json({ message: "missing email" });
     }
 
     const _user = await UserModel.findOne({ email });
     if (!_user) {
-      return res.status(404).json({ message: "Không tìm thấy người dùng" });
+      return res.status(404).json({ message: "User is not found" });
     }
 
     // Tạo OTP ngẫu nhiên (6 chữ số)
@@ -195,15 +195,15 @@ const sendOtp = async (req, res) => {
     const mailOptions = {
       from: process.env.EMAIL_USERNAME,
       to: email,
-      subject: "Mã OTP đổi mật khẩu",
-      text: `Mã OTP của bạn là: ${otp}. Mã này sẽ hết hạn sau 5 phút.`,
+      subject: "Here is your OTP to change password",
+      text: `Your OTP is: ${otp}. This OTP will be expired in 5 minutes.`,
     };
 
     await transporter.sendMail(mailOptions);
 
-    res.status(200).json({ message: "Gửi OTP thành công" });
+    res.status(200).json({ message: "Send OTP successfully" });
   } catch (error) {
-    res.status(500).json({ message: "Lỗi server: " + error.message });
+    res.status(500).json({ message: "server error: " + error.message });
   }
 };
 
@@ -211,19 +211,17 @@ const changePasswordWithOtp = async (req, res) => {
   const { email, otp, newPass } = req.body;
   try {
     if (!email || !otp || !newPass) {
-      return res.status(400).json({ message: "Thiếu thông tin" });
+      return res.status(400).json({ message: "Missing credentials" });
     }
 
     const _user = await UserModel.findOne({ email });
     if (!_user) {
-      return res.status(404).json({ message: "Không tìm thấy người dùng" });
+      return res.status(404).json({ message: "User is not found" });
     }
 
     // Kiểm tra OTP và thời gian hết hạn
     if (_user.otp !== otp || _user.otpExpires < Date.now()) {
-      return res
-        .status(401)
-        .json({ message: "OTP không hợp lệ hoặc đã hết hạn" });
+      return res.status(401).json({ message: "Invalid OTP" });
     }
 
     // Mã hóa mật khẩu mới
@@ -235,22 +233,41 @@ const changePasswordWithOtp = async (req, res) => {
     _user.otpExpires = null;
 
     await _user.save();
-    res.status(200).json({ message: "Đổi mật khẩu thành công" });
+    res.status(200).json({ message: "Password changed successfully" });
   } catch (error) {
-    res.status(500).json({ message: "Lỗi server: " + error.message });
+    res.status(500).json({ message: " server error: " + error.message });
   }
 };
 
+// change password after logged in
+const changePassword = async (req, res) => {
+  const { userId, oldPass, newPass } = req.body;
+  if (!userId || !oldPass || !newPass)
+    return res.status(400).json({
+      message: "Missing credentials",
+    });
+  const _user = await UserModel.findById(userId);
+  if (oldPass != _user.password)
+    return res.status(404).json({
+      message: "Invalid password",
+    });
+  _user.password = newPass;
+  await _user.save();
+
+  return res.status(200).json({
+    message: "Password changed successfully!",
+  });
+};
+//
 const changeInfo = async (req, res) => {
   try {
     const { userId, newName, newAvatar } = req.body;
     if (!userId)
       return res.status(404).json({
-        message: "Thieu thong tin",
+        message: "missing credentials",
       });
     const _user = await UserModel.findById(userId);
-    if (!_user)
-      return res.status(404).json({ message: "Khong tim thay nguoi dung" });
+    if (!_user) return res.status(404).json({ message: "User is not found" });
     if (newName && typeof newName === "string" && newName.trim().length > 0) {
       _user.userName = newName.trim();
     }
@@ -265,7 +282,7 @@ const changeInfo = async (req, res) => {
     await _user.save();
 
     return res.status(200).json({
-      message: "Thay doi thong tin nguoi dung thanh cong",
+      message: "user informations changed successfully!",
       updatedUser: {
         id: _user._id,
         userName: _user.userName,
@@ -285,6 +302,7 @@ const userController = {
   getRefToken,
   sendOtp,
   changePasswordWithOtp,
+  changePassword,
   changeInfo,
 };
 export default userController;
