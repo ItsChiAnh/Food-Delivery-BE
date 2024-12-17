@@ -12,7 +12,7 @@ const saltRounds = 10;
 
 const register = async (req, res) => {
   const { userName, email, password, avatar, role } = req.body;
-  if (!userName || !email || !avatar || !password) {
+  if (!userName || !email || !password) {
     return res.status(404).json({
       message: "Missing credentials",
     });
