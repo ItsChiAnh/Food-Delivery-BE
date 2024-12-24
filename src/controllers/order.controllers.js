@@ -54,30 +54,8 @@ const placeOrder = async (req, res) => {
   }
 };
 
-<<<<<<< HEAD
 const verifyOrder = async (req, res) => {
   const { orderId, success } = req.body;
-=======
-const removeOrder = async (req, res) => {
-  const { orderId } = req.body;
-  if (!orderId)
-    return res.status(404).json({
-      message: "Missing id",
-    });
-  try {
-    const deletedOrder = await orderModel.findByIdAndDelete(orderId);
-    if (!deletedOrder) return res.status(404).json({ message: "Invalid id" });
-    res.status(200).json({
-      message: "order deleted successfully!",
-      deletedOrder: deletedOrder,
-    });
-  } catch (error) {
-    res.status(500).json({
-      message: "Server error: " + error.message,
-    });
-  }
-};
->>>>>>> 01edc9e6bb49c0ef72952ef5b510597480a6d412
 
   try {
     if (success == "true") {
