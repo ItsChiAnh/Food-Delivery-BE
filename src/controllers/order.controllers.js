@@ -50,10 +50,28 @@ const placeOrder = async (req, res) => {
     res.status(200).json({ success: true, session_url: session.url });
   } catch (error) {
     console.log(error);
-    res.status(400).json({ success: false, message: "Server Error!" });
+    res.status(500).json({ success: false, message: "Server Error!" });
   }
 };
 
-const removeOrder = async (req, res) => {};
+const removeOrder = async (req, res) => {
+  const { orderId } = req.body;
+  if (!orderId)
+    return res.status(404).json({
+      message: "Missing id",
+    });
+  try {
+    const deletedOrder = await orderModel.findByIdAndDelete(orderId);
+    if (!deletedOrder) return res.status(404).json({ message: "Invalid id" });
+    res.status(200).json({
+      message: "order deleted successfully!",
+      deletedOrder: deletedOrder,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Server error: " + error.message,
+    });
+  }
+};
 
 export { placeOrder, removeOrder };
