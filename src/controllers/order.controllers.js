@@ -54,6 +54,30 @@ const placeOrder = async (req, res) => {
   }
 };
 
-const removeOrder = async (req, res) => {};
+const verifyOrder = async (req, res) => {
+  const { orderId, success } = req.body;
 
-export { placeOrder, removeOrder };
+  try {
+    if (success == "true") {
+      await orderModel.findByIdAndUpdate(orderId, { payment: true });
+      res.status(200).json({ success: true, message: "Paid!" });
+    } else {
+      await orderModel.findByIdAndDelete(orderId);
+      res.status(500).json({ success: false, message: "Not paid!" });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ success: false, message: "Error Occurred!" });
+  }
+};
+
+const userOrders = async (req, res) => {
+  try {
+    const orders = await orderModel.find({ userId: req.user.id });
+    res.status(200).json({ success: true, data: orders });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ success: false, message: "Error Occurred" });
+  }
+};
+export { placeOrder, verifyOrder, userOrders };
