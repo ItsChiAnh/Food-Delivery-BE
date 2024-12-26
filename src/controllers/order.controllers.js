@@ -14,16 +14,16 @@ const placeOrder = async (req, res) => {
       items: req.body.item,
       amount: req.body.amount,
       address: req.body.address,
-      //them image
-      imageFile: req.body.image[0],
+      // //them image
+      // imageFile: req.body.image[0],
     });
 
     await newOrder.save();
     await UserModel.findByIdAndUpdate(req.user.id, { cartData: {} }); //clear userCart when order is placed
     //
-    const imageUpload = await cloudinary.uploader.upload(imageFile.path, {
-      resource_type: "image",
-    });
+    // const imageUpload = await cloudinary.uploader.upload(imageFile.path, {
+    //   resource_type: "image",
+    // });
     //
     const line_items = req.body.items.map((item) => ({
       price_data: {
@@ -34,8 +34,8 @@ const placeOrder = async (req, res) => {
         unit_amount: item.price * 100,
       },
       quantity: item.quantity,
-      //
-      image: imageUpload.secure_url,
+      // //
+      // image: imageUpload.secure_url,
     }));
 
     line_items.push({

@@ -1,17 +1,27 @@
 import foodModel from "../models/food.models.js";
-import fs from "fs";
+import { v2 as cloudinary } from "cloudinary";
 
 const addFood = async (req, res) => {
-  let image_filename = `${req.file.filename}`;
-
-  const food = new foodModel({
-    name: req.body.name,
-    description: req.body.description,
-    price: req.body.price,
-    image: image_filename,
-    category: req.body.category,
-  });
   try {
+    const name = req.body.name;
+    const description = req.body.description;
+    const price = req.body.price;
+    const imageFile = req.file;
+    const category = req.body.category;
+
+    const imageUpload = await cloudinary.uploader.upload(imageFile.path, {
+      resource_type: "image",
+    });
+
+    const foodData = {
+      name,
+      description,
+      price,
+      image: imageUpload.secure_url,
+      category,
+    };
+
+    const food = foodModel(foodData);
     await food.save();
     res.status(200).json({ success: true, message: "Food added!" });
   } catch (error) {
@@ -33,7 +43,6 @@ const removeFood = async (req, res) => {
     const foodId = req.body.id;
     const food = await foodModel.findById(foodId);
     console.log(foodId);
-    fs.unlink(`uploads/${food.image}`, () => {});
 
     await foodModel.findByIdAndDelete(req.body.id);
     res.status(200).json({ success: true, message: "Deleted successfully!" });
@@ -75,8 +84,6 @@ const editFood = async (req, res) => {
     // Update image if a new one is uploaded
     if (req.file) {
       food.image = `${req.file.filename}`;
-
-      // Implement logic to delete the old image file (if applicable)
     }
 
     // Save the updated food document

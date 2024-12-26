@@ -5,7 +5,6 @@ import {
   getCart,
 } from "../controllers/cart.controllers.js";
 import authorizationToken from "../middleware/auth.mdw.js";
-import authMiddleware from "../middleware/auth.middeware.js";
 
 const cartRouter = express.Router();
 
