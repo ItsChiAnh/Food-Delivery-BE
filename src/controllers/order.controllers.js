@@ -1,6 +1,7 @@
 import orderModel from "../models/order.models.js";
 import UserModel from "../models/user.model.js";
 import Stripe from "stripe";
+import { v2 as cloudinary } from "cloudinary";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
@@ -13,11 +14,17 @@ const placeOrder = async (req, res) => {
       items: req.body.item,
       amount: req.body.amount,
       address: req.body.address,
+      //them image
+      imageFile: req.body.image[0],
     });
 
     await newOrder.save();
     await UserModel.findByIdAndUpdate(req.user.id, { cartData: {} }); //clear userCart when order is placed
-
+    //
+    const imageUpload = await cloudinary.uploader.upload(imageFile.path, {
+      resource_type: "image",
+    });
+    //
     const line_items = req.body.items.map((item) => ({
       price_data: {
         currency: "usd",
@@ -27,6 +34,8 @@ const placeOrder = async (req, res) => {
         unit_amount: item.price * 100,
       },
       quantity: item.quantity,
+      //
+      image: imageUpload.secure_url,
     }));
 
     line_items.push({
@@ -80,4 +89,13 @@ const userOrders = async (req, res) => {
     res.status(400).json({ success: false, message: "Error Occurred" });
   }
 };
-export { placeOrder, verifyOrder, userOrders };
+
+const removeOrder = async (req, res) => {
+  try {
+    await orderModel.findByIdAndDelete(req.body.orderId);
+    res.status(200).json({ success: true, message: "order removed!" });
+  } catch (error) {
+    res.status(400).json({ success: false, error });
+  }
+};
+export { placeOrder, verifyOrder, userOrders, removeOrder };

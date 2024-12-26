@@ -4,6 +4,7 @@ import "dotenv/config";
 import connectDatabase from "./src/db/db.js";
 import router from "./src/routes/index.js";
 import dotenv from "dotenv";
+import connectCloudinary from "./src/db/cloudinary.js";
 
 const app = express();
 dotenv.config();
@@ -15,7 +16,8 @@ app.use(cors());
 
 //connect databae
 connectDatabase();
-
+//connect cloudinary
+connectCloudinary();
 //api endpoints
 app.use("/api", router);
 app.use("/images", express.static("uploads"));
