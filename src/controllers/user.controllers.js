@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import dotenv from "dotenv";
 import crypto from "crypto";
 import nodemailer from "nodemailer";
+import { v2 as cloudinary } from "cloudinary";
 
 import rfTokenModel from "../models/refreshtoken.model.js";
 import UserModel from "../models/user.model.js";
@@ -11,12 +12,18 @@ dotenv.config();
 const saltRounds = 10;
 
 const register = async (req, res) => {
-  const { userName, email, password, avatar, role } = req.body;
+  const { userName, email, password, role } = req.body;
+  const imageFile = req.file;
+
   if (!userName || !email || !password) {
     return res.status(404).json({
       message: "Missing credentials",
     });
   }
+  const imageUpload = await cloudinary.uploader.upload(imageFile.path, {
+    resource_type: "image",
+  });
+
   let userRole = role && role === "admin" ? "admin" : "user";
 
   //kiem tra email ton tai
@@ -32,7 +39,7 @@ const register = async (req, res) => {
     const newUser = {
       userName,
       email,
-      avatar,
+      avatar: imageUpload.secure_url,
       password: hashedPassword,
       role: userRole,
       otp: "",
