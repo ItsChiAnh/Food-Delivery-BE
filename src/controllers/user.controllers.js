@@ -268,23 +268,22 @@ const changePassword = async (req, res) => {
 //
 const changeInfo = async (req, res) => {
   try {
-    const { userId, newName, newAvatar } = req.body;
+    const { userId, newName } = req.body;
+    const imageFile = req.file;
     if (!userId)
       return res.status(404).json({
         message: "missing credentials",
       });
+    const imageUpload = await cloudinary.uploader.upload(imageFile.path, {
+      resource_type: "image",
+    });
     const _user = await UserModel.findById(userId);
     if (!_user) return res.status(404).json({ message: "User is not found" });
     if (newName && typeof newName === "string" && newName.trim().length > 0) {
       _user.userName = newName.trim();
     }
-    if (
-      newAvatar &&
-      typeof newAvatar === "string" &&
-      newAvatar.trim().length > 0
-    ) {
-      _user.avatar = newAvatar.trim();
-    }
+
+    _user.avatar = imageUpload.secure_url;
 
     await _user.save();
 
