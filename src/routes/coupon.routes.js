@@ -1,9 +1,9 @@
 import express from "express";
 import {
   addCoupon,
+  findCoupon,
   listCoupon,
   removeCoupon,
-  findCouponByID,
 } from "../controllers/coupon.controllers.js";
 const couponRouter = express.Router();
 
@@ -11,8 +11,8 @@ couponRouter.post("/add", addCoupon);
 
 couponRouter.post("/remove", removeCoupon);
 
-couponRouter.get("/all-coupons", listCoupon);
+couponRouter.get("/list", listCoupon);
 
-couponRouter.post("/find-coupon", findCouponByID);
+couponRouter.post("/find-coupon", findCoupon);
 
 export default couponRouter;

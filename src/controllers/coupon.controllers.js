@@ -1,16 +1,16 @@
 import couponModel from "../models/coupon.models.js";
 
 const addCoupon = async (req, res) => {
-  const { couponCode, couponName, description, discount, expiredDate } =
-    req.body;
-  if (!couponCode || !couponName || !discount) {
-    return res.status(404).json({
-      success: false,
-      message: "missing credentials",
-    });
-  }
   try {
-    const couponIsExists = await couponModel.findOne(couponCode);
+    const { couponCode, couponName, description, discount, expiredDate } =
+      req.body;
+    if (!couponCode || !couponName || !discount) {
+      return res.status(404).json({
+        success: false,
+        message: "missing credentials",
+      });
+    }
+    const couponIsExists = await couponModel.findOne({ couponCode });
     if (couponIsExists)
       return res.json({ success: false, message: "coupon already exists" });
     const couponData = {
@@ -54,10 +54,10 @@ const removeCoupon = async (req, res) => {
   }
 };
 
-const findCouponByID = async (req, res) => {
+const findCoupon = async (req, res) => {
   try {
-    const couponId = req.body.id;
-    const coupon = await couponModel.findById(couponId);
+    const couponCode = req.body;
+    const coupon = await couponModel.findOne(couponCode);
     if (!coupon) {
       return res.status(404).json({ message: "Coupon not found" });
     }
@@ -67,4 +67,4 @@ const findCouponByID = async (req, res) => {
     return res.status(500).json({ message: "Internal Server Error" });
   }
 };
-export { addCoupon, listCoupon, removeCoupon, findCouponByID };
+export { addCoupon, listCoupon, removeCoupon, findCoupon };
