@@ -9,6 +9,9 @@ const addFood = async (req, res) => {
     const imageFile = req.file;
     const category = req.body.category;
 
+    if (!name || !price || !category || !imageFile) {
+      return res.status(404).json({ message: "Missing properties!" });
+    }
     const imageUpload = await cloudinary.uploader.upload(imageFile.path, {
       resource_type: "image",
     });
