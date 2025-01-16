@@ -90,12 +90,25 @@ const userOrders = async (req, res) => {
   }
 };
 
-const removeOrder = async (req, res) => {
+const listOrders = async (req, res) => {
   try {
-    await orderModel.findByIdAndDelete(req.body.orderId);
-    res.status(200).json({ success: true, message: "order removed!" });
+    const orders = await orderModel.find({});
+    res.json({ success: true, data: orders });
   } catch (error) {
-    res.status(400).json({ success: false, error });
+    console.log(error);
+    res.json({ success: false, message: "Error" });
   }
 };
-export { placeOrder, verifyOrder, userOrders, removeOrder };
+
+const updateStatus = async (req, res) => {
+  try {
+    await orderModel.findByIdAndUpdate(req.body.orderId, {
+      status: req.body.status,
+    });
+    res.json({ success: true, message: "Status Updated" });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: "Error" });
+  }
+};
+export { placeOrder, verifyOrder, userOrders, listOrders, updateStatus };
