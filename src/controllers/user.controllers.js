@@ -13,16 +13,16 @@ const saltRounds = 10;
 
 const register = async (req, res) => {
   const { userName, email, password, role } = req.body;
-  const imageFile = req.file;
+  // const imageFile = req.file;
 
   if (!userName || !email || !password) {
     return res.status(404).json({
       message: "Missing credentials",
     });
   }
-  const imageUpload = await cloudinary.uploader.upload(imageFile.path, {
-    resource_type: "image",
-  });
+  // const imageUpload = await cloudinary.uploader.upload(imageFile.path, {
+  //   resource_type: "image",
+  // });
 
   let userRole = role && role === "admin" ? "admin" : "user";
 
@@ -39,7 +39,7 @@ const register = async (req, res) => {
     const newUser = {
       userName,
       email,
-      avatar: imageUpload.secure_url,
+      // avatar: imageUpload.secure_url,
       password: hashedPassword,
       role: userRole,
       otp: "",
