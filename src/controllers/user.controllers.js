@@ -7,6 +7,7 @@ import { v2 as cloudinary } from "cloudinary";
 
 import rfTokenModel from "../models/refreshtoken.model.js";
 import UserModel from "../models/user.model.js";
+import { log } from "console";
 
 dotenv.config();
 const saltRounds = 10;
@@ -20,9 +21,6 @@ const register = async (req, res) => {
       message: "Missing credentials",
     });
   }
-  const imageUpload = await cloudinary.uploader.upload(imageFile.path, {
-    resource_type: "image",
-  });
 
   let userRole = role && role === "admin" ? "admin" : "user";
 
@@ -216,6 +214,7 @@ const sendOtp = async (req, res) => {
 
 const changePasswordWithOtp = async (req, res) => {
   const { email, otp, newPass } = req.body;
+  console.log(email, otp, newPass);
   try {
     if (!email || !otp || !newPass) {
       return res.status(400).json({ message: "Missing credentials" });
