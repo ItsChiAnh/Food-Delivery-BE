@@ -16,7 +16,7 @@ foodRouter.get("/list", listFood);
 
 foodRouter.post("/remove", removeFood);
 
-foodRouter.put("/edit/:id", editFood);
+foodRouter.put("/edit/:id", upload.single("image"), editFood);
 
 foodRouter.post("/findid", findFoodByID);
 

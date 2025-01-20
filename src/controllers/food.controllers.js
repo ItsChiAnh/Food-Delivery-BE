@@ -79,18 +79,28 @@ const editFood = async (req, res) => {
 
     // Update food properties (handle optional data)
 
-    food.name = req.body.name || food.name;
-    food.description = req.body.description || food.description;
-    food.price = req.body.price || food.price;
-    food.category = req.body.category || food.category;
+    // food.name = req.body.name || food.name;
+    // food.description = req.body.description || food.description;
+    // food.price = req.body.price || food.price;
+    // food.category = req.body.category || food.category;
+    const updatedData = {
+      name: req.body.name || food.name,
+      description: req.body.description || food.description,
+      price: req.body.price || food.price,
+      category: req.body.category || food.category,
+    };
 
     // Update image if a new one is uploaded
     if (req.file) {
-      food.image = `${req.file.filename}`;
+      const imageUpload = await cloudinary.uploader.upload(req.file.path, {
+        resource_type: "image",
+      });
+      console.log("Cloudinary upload response:", imageUpload);
+      updatedData.image = imageUpload.secure_url;
     }
 
     // Save the updated food document
-    await food.save();
+    await food.updateOne(updatedData);
     return res.status(200).json({ success: true, message: "Food updated!" });
   } catch (error) {
     console.error("Error updating food:", error);
