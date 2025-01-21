@@ -85,6 +85,7 @@ const login = async (req, res) => {
       email: user.email,
       userName: user.userName,
       role: user.role,
+      cartData: user.cartData,
     };
 
     // Tạo Access Token
