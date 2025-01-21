@@ -42,6 +42,7 @@ const register = async (req, res) => {
       // avatar: imageUpload.secure_url,
       password: hashedPassword,
       role: userRole,
+      cartData: {},
       otp: "",
       otpExpires: "",
     };
