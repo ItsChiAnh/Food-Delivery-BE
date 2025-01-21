@@ -28,7 +28,8 @@ const userSchema = new mongoose.Schema(
     otp: { type: String, default: null },
     otpExpires: { type: Date, default: null },
   },
-  { timestamps: true }
+  { timestamps: true },
+  { minimize: false }
 );
 const UserModel = mongoose.model("User", userSchema);
 

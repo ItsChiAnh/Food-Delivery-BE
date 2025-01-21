@@ -12,6 +12,6 @@ cartRouter.post("/add", authorizationToken, addToCart);
 
 cartRouter.post("/remove", authorizationToken, removeFromCart);
 
-cartRouter.get("/get", authorizationToken, getCart);
+cartRouter.post("/get", authorizationToken, getCart);
 
 export default cartRouter;

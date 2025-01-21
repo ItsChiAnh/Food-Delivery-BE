@@ -3,7 +3,7 @@ import userController from "../controllers/user.controllers.js";
 import upload from "../middleware/multer.js";
 const userRouter = Router();
 //login - logout
-userRouter.post("/register", upload.single("avatar"), userController.register);
+userRouter.post("/register", userController.register);
 userRouter.post("/login", userController.login);
 userRouter.post("/token", userController.getRefToken);
 userRouter.post("/logout", userController.logout);
