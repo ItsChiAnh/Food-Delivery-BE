@@ -13,16 +13,12 @@ const saltRounds = 10;
 
 const register = async (req, res) => {
   const { userName, email, password, role } = req.body;
-  // const imageFile = req.file;
 
   if (!userName || !email || !password) {
     return res.status(404).json({
       message: "Missing credentials",
     });
   }
-  // const imageUpload = await cloudinary.uploader.upload(imageFile.path, {
-  //   resource_type: "image",
-  // });
 
   let userRole = role && role === "admin" ? "admin" : "user";
 
@@ -36,17 +32,19 @@ const register = async (req, res) => {
   //ma hoa mat khau
   bcrypt.hash(password, saltRounds, async function (err, hashedPassword) {
     if (err) res.send("loi ", err.message);
-    const newUser = {
+
+    const newUser = new UserModel({
       userName,
       email,
       // avatar: imageUpload.secure_url,
       password: hashedPassword,
       role: userRole,
-      cartData: {},
+      cartData: [],
       otp: "",
       otpExpires: "",
-    };
-    const insertNewUser = await UserModel.create(newUser);
+    });
+    const insertNewUser = await newUser.save();
+
     if (!insertNewUser) {
       return res.status(500).json({
         error: "failed to create user",

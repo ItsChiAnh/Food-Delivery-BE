@@ -23,6 +23,9 @@ const userSchema = new mongoose.Schema(
     },
     cartData: {
       type: Object,
+    },
+    testobject: {
+      type: Object,
       default: {},
     },
     otp: { type: String, default: null },
