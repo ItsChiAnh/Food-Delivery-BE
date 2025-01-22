@@ -17,7 +17,7 @@ const placeOrder = async (req, res) => {
       // //them image
       // imageFile: req.body.image[0],
     });
-
+    console.log(newOrder);
     await newOrder.save();
     await UserModel.findByIdAndUpdate(req.user.id, { cartData: {} }); //clear userCart when order is placed
     //
