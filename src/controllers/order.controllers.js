@@ -6,7 +6,7 @@ import { v2 as cloudinary } from "cloudinary";
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 const placeOrder = async (req, res) => {
-  const frontend_url = "http://localhost:5173";
+  const frontend_url = "https://food-delivery-fe-raqc.onrender.com";
 
   try {
     const newOrder = new orderModel({
@@ -19,7 +19,9 @@ const placeOrder = async (req, res) => {
     });
     console.log(newOrder);
     await newOrder.save();
-    await UserModel.findByIdAndUpdate(req.user.id, { cartData: {} }); //clear userCart when order is placed
+    await UserModel.findByIdAndUpdate(req.user.id, {
+      cartData: { [items]: [amount] },
+    }); //clear userCart when order is placed
     //
     // const imageUpload = await cloudinary.uploader.upload(imageFile.path, {
     //   resource_type: "image",
