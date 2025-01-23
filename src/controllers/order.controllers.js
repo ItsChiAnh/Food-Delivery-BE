@@ -20,7 +20,7 @@ const placeOrder = async (req, res) => {
     console.log(newOrder);
     await newOrder.save();
     await UserModel.findByIdAndUpdate(req.user.id, {
-      cartData: { [items]: [amount] },
+      cartData: {},
     }); //clear userCart when order is placed
     //
     // const imageUpload = await cloudinary.uploader.upload(imageFile.path, {
