@@ -12,7 +12,17 @@ const port = process.env.PORT || 4000;
 
 //middlewares
 app.use(express.json());
-app.use(cors());
+app.use(
+  cors({
+    origin: [
+      "https://food-delivery-be-xk4s.onrender.com",
+      "http://localhost:5173", // For local development
+    ],
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 
 //connect databae
 connectDatabase();
