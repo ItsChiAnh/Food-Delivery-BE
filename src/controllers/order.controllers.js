@@ -11,7 +11,7 @@ const placeOrder = async (req, res) => {
   try {
     const newOrder = new orderModel({
       userId: req.user.id,
-      items: req.body.item,
+      items: req.body.items,
       amount: req.body.amount,
       address: req.body.address,
       // //them image
