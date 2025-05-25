@@ -15,7 +15,7 @@ app.use(express.json());
 app.use(
   cors({
     origin: [
-      "https://food-delivery-be-xk4s.onrender.com",
+      "https://food-delivery-fe-raqc.onrender.com",
       "http://localhost:5173", // For local development
     ],
     credentials: true,
