@@ -154,6 +154,7 @@ const getRefToken = async (req, res) => {
     });
   });
 };
+
 const logout = async (req, res) => {
   const { refreshToken } = req.body;
   if (!refreshToken) {
