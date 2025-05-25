@@ -5,7 +5,7 @@ const extractToken = (authorizationHeader) => {
     return null;
   }
   const parts = authorizationHeader.split("");
-  if (parts.length === 2 && part[0] === "Bearer") {
+  if (parts.length === 2 && parts[0] === "Bearer") {
     return parts[1];
   }
   return null;
