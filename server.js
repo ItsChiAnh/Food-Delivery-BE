@@ -9,24 +9,7 @@ import connectCloudinary from "./src/db/cloudinary.js";
 const app = express();
 dotenv.config();
 const port = process.env.PORT || 4000;
-// Add these environment variables to your .env file
-const FRONTEND_URL = "https://food-delivery-fe-raqc.onrender.com";
 
-// Replace the existing cors middleware
-app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", FRONTEND_URL);
-  res.setHeader(
-    "Access-Control-Allow-Methods",
-    "GET, POST, PUT, DELETE, OPTIONS"
-  );
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  res.setHeader("Access-Control-Allow-Credentials", "true");
-
-  if (req.method === "OPTIONS") {
-    return res.sendStatus(200);
-  }
-  next();
-});
 //middlewares
 app.use(express.json());
 app.use(cors());
